@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUpdatePost;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -22,7 +23,15 @@ class PostController extends Controller
 
     public function store(StoreUpdatePost $request)
     {
-        Post::create($request->all());
+        $data = $request->all();
+
+        if($request->file('image')->isValid()){
+            $nameFile = Str::of($request->title)->slug('-'). '.' .$request->image->getClientOriginalExtension();
+            $image = $request->file('image')->storeAs('posts', $nameFile);
+            $data['image'] = $image;
+        }
+
+        Post::create($data);
         return redirect()
         ->route('posts.index')
         ->with('message','Post criado com sucesso!');
@@ -62,10 +71,30 @@ class PostController extends Controller
     if(!$post = Post::find($id)){
         return redirect()->back();
      }
-     $post->update($request->all());
+
+     $data = $request->all();
+     if($request->file('image')->isValid()){
+        $nameFile = Str::of($request->title)->slug('-'). '.' .$request->image->getClientOriginalExtension();
+        $image = $request->file('image')->storeAs('posts', $nameFile);
+        $data['image'] = $image;
+    }
+
+     $post->update($data);
      return redirect()
             ->route('posts.index')
             ->with('message','Post atualizado com sucesso!');
+   }
+
+   public function search(Request $request)
+   {
+       $filters = $request->except('_token');
+       //so pra testar e ver se está chegando até este ponto aqui
+    // dd("Pesquisando por {$request->search}");
+    $posts = Post::where('title','LIKE', "%{$request->search}%")
+                ->orWhere('content', 'LIKE', "%{$request->search}%")
+                ->paginate(3);//como estamos usando paginação encerramos com paginate, se nao tivessemos com paginação seria get();
+
+    return view('admin.posts.index', compact('posts','filters'));
    }
 
 }
