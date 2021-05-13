@@ -1,12 +1,16 @@
 @extends('admin.layouts.app')
 @section('title','Criar novo Post')
 @section('content')
-<a href="{{ route('posts.index') }}">Página Inicial</a>
+<div class="grid">
+<a href="{{ route('posts.index') }}" class="my-4 uppercase px-8 py-2 rounded bg-green-600 text-blue-50 max-w-max shadow-sm hover:shadow-lg">Página Inicial</a>
+</div>
 <hr>
-<h1>Cadastrar novo Post</h1>
+<h1 class="text-center text-3xl uppercase font-black my-4">Novo Post</h1>
+<div class="w-11/12 p-12 bg-white sm:w-8/12 md:w-1/2 lg:w-5/12 mx-auto">
     <form action="{{route('posts.store') }}" method="post" enctype="multipart/form-data">
         @include('admin.posts._partials.form')
 </form>
+</div>
 
 
 
